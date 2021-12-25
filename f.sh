@@ -1,7 +1,6 @@
 #!/bin/sh
 
 awk '
-#BEGIN {	FS="[\\[:\\] ]";}
 {
 	if (/min_total/)
 	{
@@ -14,20 +13,35 @@ awk '
 			printf "\n\n"
 			continue
 		}
-		c=($i~/[0-9]+\[[0-9]+:[0-9]+\][0-9]+/)
-		printf $i "\n"
-		printf $c "\n\n"
-		if ($c == "")
+		if ($i!~/[0-9]+\[[0-9]+:[0-9]+\][0-9]+/)
 		{
 			continue
 		}
 		
-		a=sub(/([0-9]+)\[([0-9]+):([0-9]+)\]([0-9]+)/, "\\1\t\\2\t\\3\t\\4\n", $i)
-		if ($a == "")
-		{
-			continue
-		}
-		#printf $a
+		printf $i "\n"
 	}
 }
-' msgrecord.txt > msgrecord
+' msgrecord.txt > msgrecord1
+
+awk '
+BEGIN {	FS="[\\[:\\]]";}
+{
+	for (i=1;i<=NF;i++)
+	{
+		printf $i
+		if (i != NF)
+		{
+			printf "\t"
+		}
+		else
+		{
+			printf "\n"
+		}
+	}
+}
+' msgrecord1 > msgrecord
+
+rm -rf msgrecord1
+
+sort -nrk4 msgrecord | head -n20
+rm -rf msgrecord
